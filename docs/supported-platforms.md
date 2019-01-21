@@ -71,12 +71,9 @@ TypeORM is able to run on Expo apps using the [Expo SQLite API](https://docs.exp
 2. `tns plugin add nativescript-sqlite`
 3. Create Database connetion in your app's entry point
     ```typescript
-    import driver from 'nativescript-sqlite'
-
     const connection = await createConnection({
         database: 'test.db',
         type: 'nativescript',
-        driver,
         entities: [
             Todo //... whatver entities you have
         ],
