@@ -69,8 +69,10 @@ TypeORM is able to run on Expo apps using the [Expo SQLite API](https://docs.exp
 
 1. `tns install webpack` (read below why webpack is required)
 2. `tns plugin add nativescript-sqlite`
-3. Create Database connetion in your app's entry point
+3. Create Database connection in your app's entry point
     ```typescript
+    import {createConnection} from "typeorm/browser";
+
     const connection = await createConnection({
         database: 'test.db',
         type: 'nativescript',
