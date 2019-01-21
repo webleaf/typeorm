@@ -19,6 +19,6 @@ export interface NativescriptConnectionOptions extends BaseConnectionOptions {
      * The driver object
      * Default is `require('nativescript-sqlite')
      */
-    readonly driver: any;
+    readonly driver?: any;
 
 }
