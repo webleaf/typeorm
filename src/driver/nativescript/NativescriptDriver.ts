@@ -117,7 +117,7 @@ export class NativescriptDriver extends AbstractSqliteDriver {
      */
     protected loadDependencies(): void {
         try {
-            this.sqlite = this.driver || this.sqlite = require("nativescript-sqlite");
+            this.sqlite = this.options.driver || require("nativescript-sqlite");
         }
         catch (e) {
             throw new DriverPackageNotInstalledError("Nativescript", "nativescript-sqlite");
