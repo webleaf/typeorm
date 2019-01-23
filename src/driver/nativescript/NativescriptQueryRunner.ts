@@ -29,42 +29,41 @@ export class NativescriptQueryRunner extends AbstractSqliteQueryRunner {
     /**
      * Executes a given SQL query.
      */
-    query(query: string, parameters?: any[]): Promise<any> {
-        if (this.isReleased)
+    async query(query: string, parameters?: any[]) {
+
+        if (this.isReleased) {
             throw new QueryRunnerAlreadyReleasedError();
+        }
 
         const connection = this.driver.connection;
+        const isInsertQuery = query.substr(0, 11) === "INSERT INTO";
 
-        return new Promise<any[]>( (ok, fail) => {
-            const isInsertQuery = query.substr(0, 11) === "INSERT INTO";
+        connection.logger.logQuery(query, parameters, this);
 
-            const handler = function (err: any, result: any) {
+        try {
 
-                // log slow queries if maxQueryExecution time is set
-                const maxQueryExecutionTime = connection.options.maxQueryExecutionTime;
-                const queryEndTime = +new Date();
-                const queryExecutionTime = queryEndTime - queryStartTime;
-                if (maxQueryExecutionTime && queryExecutionTime > maxQueryExecutionTime)
-                    connection.logger.logQuerySlow(queryExecutionTime, query, parameters, this);
-
-                if (err) {
-                    connection.logger.logQueryError(err, query, parameters, this);
-                    fail(new QueryFailedError(query, parameters, err));
-                } else {
-                    // when isInsertQuery == true, result is the id
-                    ok(result);
-                }
-            };
-            this.driver.connection.logger.logQuery(query, parameters, this);
+            const db = await this.connect();
             const queryStartTime = +new Date();
-            this.connect().then(databaseConnection => {
-                if (isInsertQuery) {
-                    databaseConnection.execSQL(query, parameters, handler);
-                } else {
-                    databaseConnection.all(query, parameters, handler);
-                }
-            });
-        });
+
+            const result = isInsertQuery // when isInsertQuery == true, result is the id
+                ? await db.execSQL(query, parameters)
+                : await db.all(query, parameters);
+
+            const queryEndTime = +new Date();
+            const queryExecutionTime = queryEndTime - queryStartTime;
+            const maxQueryExecutionTime = connection.options.maxQueryExecutionTime;
+
+            // log slow queries if maxQueryExecution time is set
+            if (maxQueryExecutionTime && queryExecutionTime > maxQueryExecutionTime) {
+                connection.logger.logQuerySlow(queryExecutionTime, query, parameters, this);
+            }
+
+            return result;
+
+        } catch (err) {
+            connection.logger.logQueryError(err, query, parameters, this);
+            throw new QueryFailedError(query, parameters, err);
+        }
     }
 
     // -------------------------------------------------------------------------
