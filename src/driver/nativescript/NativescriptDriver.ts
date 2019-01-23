@@ -94,7 +94,7 @@ export class NativescriptDriver extends AbstractSqliteDriver {
      *  however, you CAN use both if you want;
      *  but side effects WILL occur with some functions."
      *
-     *  So we choose Promise. We should use when create connection and when make query
+     *  We choose Promise. So we should use Promises, when create connection and when make query
      *  Let's use async/await
      */
     protected async createDatabaseConnection() {
