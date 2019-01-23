@@ -56,11 +56,9 @@ export class NativescriptDriver extends AbstractSqliteDriver {
     /**
      * Closes connection with database.
      */
-    async disconnect(): Promise<void> {
-        return new Promise<void>((ok, fail) => {
-            this.queryRunner = undefined;
-            this.databaseConnection.close().then(ok).catch(fail);
-        });
+    async disconnect() {
+        this.queryRunner = undefined;
+        return this.databaseConnection.close();
     }
 
     /**
@@ -85,27 +83,21 @@ export class NativescriptDriver extends AbstractSqliteDriver {
     // Protected Methods
     // -------------------------------------------------------------------------
 
-    /**
-     * Creates connection with the database.
-     */
-    protected createDatabaseConnection() {
-        return new Promise<void>((ok, fail) => {
-            new this.sqlite(this.options.database, this.options.extra, (err: Error, db: any): any => {
-                if (err) return fail(err);
+    protected async createDatabaseConnection() {
+        try {
+            const db = await new this.sqlite(this.options.database, this.options.extra);
 
-                // use object mode to work with TypeORM
-                db.resultType(this.sqlite.RESULTSASOBJECT);
+            // use object mode to work with TypeORM
+            db.resultType(this.sqlite.RESULTSASOBJECT);
 
+            // we need to enable foreign keys in sqlite to make sure all foreign key related features
+            // working properly. this also makes onDelete work with sqlite.
+            await db.execSQL(`PRAGMA foreign_keys = ON;`, []);
 
-                // we need to enable foreign keys in sqlite to make sure all foreign key related features
-                // working properly. this also makes onDelete work with sqlite.
-                db.execSQL(`PRAGMA foreign_keys = ON;`, [], (err: Error, result: any): any => {
-                    if (err) return fail(err);
-                    // We are all set
-                    ok(db);
-                });
-            });
-        });
+            return db;
+        } catch (err) {
+            throw new Error(err);
+        }
     }
 
     /**
