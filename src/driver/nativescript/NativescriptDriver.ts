@@ -83,6 +83,20 @@ export class NativescriptDriver extends AbstractSqliteDriver {
     // Protected Methods
     // -------------------------------------------------------------------------
 
+    /**
+     * Creates connection with the database.
+     *
+     * nativescript-sqlite driver constructor and execSQL()/all() methods return Promise
+     * Also as mentioned in nativescript-sqlite documentation:
+     *
+     * "You should choose either to use a promise or a callback;
+     *  you can use whichever you are most comfortable with
+     *  however, you CAN use both if you want;
+     *  but side effects WILL occur with some functions."
+     *
+     *  So we choose Promise. We should use when create connection and when make query
+     *  Let's use async/await
+     */
     protected async createDatabaseConnection() {
         try {
             const db = await new this.sqlite(this.options.database, this.options.extra);
