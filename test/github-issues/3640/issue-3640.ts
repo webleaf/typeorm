@@ -8,7 +8,6 @@ describe("github issues > #3640 Updating column values to NULL should be done in
     let connections: Connection[];
     before(async () => connections = await createTestingConnections({
         entities: [__dirname + "/entity/*{.js,.ts}"],
-        logging: true,
         enabledDrivers: ["sqlite"]
     }));
     beforeEach(() => reloadTestingDatabases(connections));
