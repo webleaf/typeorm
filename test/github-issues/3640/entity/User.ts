@@ -6,10 +6,10 @@ export class User {
     @PrimaryColumn()
     id: number;
 
-    @Column({nullable:true})
-    name:string
+    @Column({nullable: true})
+    name: string;
     
-    @Column({nullable:true})
-    status:string
+    @Column({nullable: true})
+    status: string;
 
 }
